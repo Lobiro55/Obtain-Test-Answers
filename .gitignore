@@ -1,0 +1,17 @@
+# Ignorar el entorno virtual
+.venv/
+
+# Ignora configuracion de jetbrains
+.idea
+.idea/*.xml
+*.iml
+
+# Ignorar todos los archivos ocultos (carpetas y archivos)
+.*
+
+# Properties propias
+*.config/personal.ini
+
+# Ignorar todos los archivos .txt
+*.txt
+
