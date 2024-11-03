@@ -1,0 +1,2 @@
+class CorrectAnswerNotFoundError(Exception):
+    pass
