@@ -5,12 +5,13 @@
 .idea
 .idea/*.xml
 *.iml
+.idea/Solucionador_De_Test.iml
 
 # Ignorar todos los archivos ocultos (carpetas y archivos)
 .*
 
 # Properties propias
-*.config/personal.ini
+python/config/personal.ini
 
 # Ignorar todos los archivos .txt
 *.txt
