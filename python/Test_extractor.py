@@ -17,7 +17,7 @@ from python.exceptions.CorrectAnswerNotFoundError import CorrectAnswerNotFoundEr
 config = configparser.ConfigParser()
 config.read("./config/personal.ini")
 
-CHROME_DRIVER_ROUTE = Path(config["Paths"]["CHROME_DRIVER_ROUTE"])
+CHROME_DRIVER_ROUTE = config["Paths"]["CHROME_DRIVER_ROUTE"]
 FILE_WITH_ANSWERS_PATH = Path(config["Paths"]["FILE_WITH_ANSWERS_PATH"])
 PAGE_TO_SCRAP_URL = config["URLs"]["PAGE_TO_SCRAP_URL"]
 
@@ -66,7 +66,7 @@ def configure_selenium_driver() -> webdriver:
 
 
 # Lee todas las preguntas y analiza cuales son las respuestas correctas
-def find_correct_answers_from_questions(driver):
+def find_correct_answers_from_questions(driver) -> None:
     questions_number = obtain_questions_number(driver)
     next_button = driver.find_element(By.ID, "boton")
 
@@ -143,7 +143,7 @@ def create_file_name() -> str:
 
 
 # Elimina los archivos temporales
-def delete_temporal_files():
+def delete_temporal_files() -> None:
     folder = Path(TEMPORAL_FILE_PATH)
     for item in folder.iterdir():
         if item.is_file() or item.is_symlink():
