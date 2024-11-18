@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict
 
 from selenium import webdriver
+from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -22,7 +23,7 @@ FILE_WITH_ANSWERS_PATH = Path(config["Paths"]["FILE_WITH_ANSWERS_PATH"])
 PAGE_TO_SCRAP_URL = config["URLs"]["PAGE_TO_SCRAP_URL"]
 
 CORRECT_ANSWER_IMAGE_BYTES = open("./resources/check.png", "rb").read()
-QUESTIONS_AND_CORRECT_ANSWERS_DICT: Dict[str, str] = {}
+QUESTIONS_AND_CORRECT_ANSWERS_DICT: Dict[str, list[str]] = {}
 TEMPORAL_FILE_PATH = Path('./temp/')
 
 
@@ -86,8 +87,12 @@ def find_correct_answers_from_questions(driver) -> None:
 
 # Presiona la primera respuesta
 def click_first_answer(answers_table) -> None:
-    first_answer_button = answers_table.find_element(By.ID, "op0")
-    first_answer_button.click()
+    try:
+        first_answer_button = answers_table.find_element(By.ID, "op0")
+        first_answer_button.click()
+    except NoSuchElementException:
+        first_answer_button = answers_table.find_element(By.ID, "ch0")
+        first_answer_button.click()
 
 
 # Obtiene el numero de preguntas, Ej de 1/23 obtendra el 23 y lo transformara a int
@@ -96,15 +101,20 @@ def obtain_questions_number(driver) -> int:
     return int(questions_number)
 
 
-# Busca la respuesta correcta de la pregunta comparando las imagenes, buscando la que sea el check
-def search_correct_answer(driver: WebDriver, answer_table: WebElement, question: str) -> str:
+# Busca las respuestas correcta de la pregunta comparando las imagenes, buscando las que sean el check
+def search_correct_answer(driver: WebDriver, answer_table: WebElement, question: str) -> list[str]:
     answers = answer_table.find_elements(By.TAG_NAME, "tr")
+    correct_answers_list: list[str] = []
 
     for image_number, answer in zip(string.ascii_lowercase, answers):
         scraped_image_path = obtain_and_decode_image_from_answer(driver, answer, image_number)
 
         if CORRECT_ANSWER_IMAGE_BYTES == open(scraped_image_path, "rb").read():
-            return answer.find_element(By.CLASS_NAME, "pr05").text
+            correct_answer = answer.find_element(By.CLASS_NAME, "pr05").text
+            correct_answers_list.append(correct_answer)
+
+    if correct_answers_list:
+        return correct_answers_list
 
     raise CorrectAnswerNotFoundError(f"No se ha podido encontrar la respuesta correcta a la pregunta: {question}")
 
@@ -127,10 +137,10 @@ def write_questions_with_correct_answer_on_txt() -> None:
     file_name = create_file_name()
 
     with open(file_name, "w") as file:
-        for question, answer in QUESTIONS_AND_CORRECT_ANSWERS_DICT.items():
-            file.write(f"{question} ----> {answer}\n\n")
+        for question, answers in QUESTIONS_AND_CORRECT_ANSWERS_DICT.items():
+            answers_text = "\n".join(answers)
+            file.write(f"{question} ----> \n{answers_text}\n\n")
             file.write("----------------------------------------------------------\n\n")
-
 
 # Utiliza la url de la pagina para crear el nombre del txt dodne se guardaran las respuestas, que se concatenara al
 # path puesto
