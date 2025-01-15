@@ -1,0 +1,5 @@
+path:
+  driver: /home/rgomez/Descargas/geckodriver # ruta del gekowebdriver
+  answers-file-rute: # ruta del fichero de respuestas
+url:
+  page-url: https://lectortmo.com/ # ruta de la pagina
